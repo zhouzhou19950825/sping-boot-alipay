@@ -27,24 +27,21 @@ import com.alipay.api.response.AlipayTradeQueryResponse;
 @Component
 public class AliPayUtils {
 	@Value("${ALIPAY.APP_ID}")
-	private static String APP_ID;
+	private  String APP_ID;
 
 	@Value("${ALIPAY.APP_PRIVATE_KEY}")
-	private static String APP_PRIVATE_KEY;
+	private  String APP_PRIVATE_KEY;
 
 	@Value("${ALIPAY.CHARSET}")
-	private static String CHARSET;
+	private  String CHARSET;
 
 	@Value("${ALIPAY.ALIPAY_PUBLIC_KEY}")
-	private static String ALIPAY_PUBLIC_KEY;
+	private  String ALIPAY_PUBLIC_KEY;
 
 	@Value("${ALIPAY.PAY_URL}")
-	private static String PAY_URL;
+	private  String PAY_URL;
 	
-	private static final String JSON="json";
-	// 实例化客户端
-	protected static AlipayClient alipayClient = new DefaultAlipayClient(PAY_URL, APP_ID, APP_PRIVATE_KEY, JSON,
-			CHARSET, ALIPAY_PUBLIC_KEY, "RSA2");
+	private  final String JSON="json";
 
 	/**
 	 * APP 请求支付
@@ -52,7 +49,9 @@ public class AliPayUtils {
 	 * @param notifyUrl
 	 * @return
 	 */
-	public static AlipayTradeAppPayResponse appPay(Map<String, String> condi, String notifyUrl) {
+	public  AlipayTradeAppPayResponse appPay(Map<String, String> condi, String notifyUrl) {
+//		AlipayClient alipayClient1 = new DefaultAlipayClient(PAY_URL, APP_ID, APP_PRIVATE_KEY, JSON,
+//				CHARSET, ALIPAY_PUBLIC_KEY, "RSA2");
 		// 实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
 		AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
 		// SDK已经封装掉了公共参数，这里只需要传入业务参数。以下方法为sdk的model入参方式(model和biz_content同时存在的情况下取biz_content)。
@@ -73,12 +72,12 @@ public class AliPayUtils {
 		request.setNotifyUrl(notifyUrl);
 		try {
 			// 这里和普通的接口调用不同，使用的是sdkExecute
-			AlipayTradeAppPayResponse response = alipayClient.sdkExecute(request);
+			AlipayTradeAppPayResponse response = getClient().sdkExecute(request);
 			// System.out.println(response.getBody());//就是orderString
 			// 可以直接给客户端请求，无需再做处理。
 			return response;
 		} catch (AlipayApiException e) {
-			// e.printStackTrace();
+			 e.printStackTrace();
 			return null;
 		}
 	}
@@ -95,11 +94,11 @@ public class AliPayUtils {
 	 * @author DTZ
 	 * @return AlipayTradeFastpayRefundQueryResponse
 	 */
-	public static AlipayTradeFastpayRefundQueryResponse searchByCondi(String jsonBody) throws AlipayApiException{
+	public  AlipayTradeFastpayRefundQueryResponse searchByCondi(String jsonBody) throws AlipayApiException{
 		AlipayTradeFastpayRefundQueryRequest request = new AlipayTradeFastpayRefundQueryRequest();
 		request.setBizContent(jsonBody);
-		AlipayTradeFastpayRefundQueryResponse response = alipayClient.execute(request);
-		return response.isSuccess()==true?response:null;
+		AlipayTradeFastpayRefundQueryResponse response = getClient().execute(request);
+		return response;
 	}
 	
 	/**
@@ -109,11 +108,11 @@ public class AliPayUtils {
 	 * @param jsonBody
 	 * @throws AlipayApiException 
 	 */
-	public static AlipayTradeQueryResponse testQuery(String jsonBody) throws AlipayApiException{
+	public  AlipayTradeQueryResponse testQuery(String jsonBody) throws AlipayApiException{
 		AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
 		request.setBizContent(jsonBody);
-		AlipayTradeQueryResponse response = alipayClient.execute(request);
-		return response.isSuccess()==true?response:null;
+		AlipayTradeQueryResponse response = getClient().execute(request);
+		return response;
 	}
 	/**
 	 * 条件分装
@@ -126,7 +125,7 @@ public class AliPayUtils {
 	 * @throws IllegalArgumentException
 	 * @throws InvocationTargetException
 	 */
-	private static Object getModel(Map<String, String> condi,Object entity)
+	private  Object getModel(Map<String, String> condi,Object entity)
 			throws SecurityException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException {
 		Field[] fields = Class.forName(entity.getClass().getCanonicalName()).getDeclaredFields();
@@ -153,13 +152,13 @@ public class AliPayUtils {
 	 *            获取方法类型（set or get）
 	 * @return 方法名称，反射使用
 	 */
-	public static String getMethodName(String key, String MethodType) {
+	public  String getMethodName(String key, String MethodType) {
 		String methodName = "";
 		if (key != null && !"".equals(key)) {
 			String[] arr = key.split("");
 			for (int i = 0; i < arr.length; i++) {
 				String temp = arr[i];
-				if (i == 1) {
+				if (i == 0) {
 					methodName += temp.toUpperCase();
 				} else {
 					methodName += temp;
@@ -175,5 +174,10 @@ public class AliPayUtils {
 
 		public static final String GET_METHOD = "get";
 
+	}
+	
+	protected AlipayClient getClient(){
+		return   new DefaultAlipayClient(PAY_URL, APP_ID, APP_PRIVATE_KEY, JSON,
+				CHARSET, ALIPAY_PUBLIC_KEY, "RSA2");
 	}
 }
